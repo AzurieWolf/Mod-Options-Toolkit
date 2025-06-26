@@ -39,7 +39,7 @@ class ModOptionSelectorApp:
         self.app_version = "1.0.0"
         self.app_author = "AzurieWolf"
         self.app_author_weblink = "https://linktr.ee/azuriewolf"
-        self.app_github_weblink = "https://github.com/azuriewolf"
+        self.app_github_weblink = "https://github.com/AzurieWolf/Mod-Option-Toolkit"
 
         # Set window title with app name and version
         master.title(self.app_name + " v" + self.app_version + " by " + self.app_author)
