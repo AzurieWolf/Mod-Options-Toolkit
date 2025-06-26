@@ -57,11 +57,23 @@ class JsonBuilderApp:
         left_frame = Frame(master)
         left_frame.pack(side="left", fill="y", padx=5, pady=5)
 
-        # Buttons to add/delete entries
+        # Build a frame to hold buttons
         btn_frame = Frame(left_frame)
-        btn_frame.pack(fill="x", pady=5)
-        Button(btn_frame, text="Add Entry", command=self.add_entry).pack(side="left", padx=2)
+        btn_frame.pack(fill="x", pady=2)
+
+        # Buttons to add/delete entries
+        Button(btn_frame, text="Add Entry", command=self.add_entry).pack(side="left", padx=0)
         Button(btn_frame, text="Delete Entry", command=self.delete_entry).pack(side="left", padx=2)
+
+        # Save button
+        self.save_button = Button(btn_frame, text="Save", command=self.save_all)
+        self.save_button.pack(side="left", padx=2)
+        ToolTip(self.save_button, "Save all changes (Copies selected zip files and preview images to the data/zips folder)")
+
+        # Pack button
+        self.pack_button = Button(btn_frame, text="Pack Mod", command=self.create_mod_zip)
+        self.pack_button.pack(side="left", padx=2)
+        ToolTip(self.pack_button, "Create a zip file containing the mod files and mod option selector.")
 
         Label(left_frame, text="Entries").pack()
 
@@ -124,8 +136,8 @@ class JsonBuilderApp:
         # Add/Delete file buttons
         self.files_listbox.bind("<<ListboxSelect>>", self.on_file_select)
         files_btn_frame = Frame(right_frame)
-        files_btn_frame.grid(row=4, column=1, sticky="w", padx=5)
-        Button(files_btn_frame, text="Add File", command=self.add_file).pack(side="left", padx=2)
+        files_btn_frame.grid(row=4, column=1, sticky="w", padx=0)
+        Button(files_btn_frame, text="Add File", command=self.add_file).pack(side="left", padx=0)
         self.deleteFileButton = Button(files_btn_frame, text="Delete File", state="disabled", command=self.delete_file)
         self.deleteFileButton.pack(side="left", padx=2)
         self.deleteFileButton.config(state="disabled")
@@ -164,19 +176,6 @@ class JsonBuilderApp:
         self.description_entry = Text(right_frame, height=7, wrap="word", undo=True)
         self.description_entry.grid(row=8, column=1, sticky="ew", padx=(0, 10))
         self.description_entry.bind("<KeyRelease>", lambda event: self.mark_dirty())
-
-        # Create a frame to hold both buttons side-by-side
-        button_frame = tk.Frame(right_frame)
-        button_frame.grid(row=9, column=1, sticky="w", pady=10)
-
-        # Save button
-        self.save_button = tk.Button(button_frame, text="Saved", state="disabled", command=self.save_all)
-        self.save_button.pack(side="left", padx=5)
-
-        # Pack Mod button
-        self.pack_button = tk.Button(button_frame, text="Pack Mod", command=self.create_mod_zip)
-        self.pack_button.pack(side="left", padx=5)
-        ToolTip(self.pack_button, "Create a zip file containing the mod files and mod option selector.")
 
         # Populate dropdowns and load data
         self.populate_zip_files()
