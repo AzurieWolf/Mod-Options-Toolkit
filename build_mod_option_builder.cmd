@@ -1,1 +1,0 @@
-pyinstaller --noconfirm --onefile --clean --windowed --icon=assets/icon.ico --name=Mod_Option_Builder mod_option_builder.py
