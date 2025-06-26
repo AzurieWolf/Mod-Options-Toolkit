@@ -1,0 +1,10 @@
+{
+  "background": "#2e2e2e",
+  "foreground": "#ffffff",
+  "button_bg": "#444444",
+  "button_fg": "#ffffff",
+  "button_active_bg": "#666666",
+  "select_bg": "#555555",
+  "tooltip_bg": "#2e2e2e",
+  "tooltip_fg": "white"
+}
