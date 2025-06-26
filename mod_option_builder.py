@@ -522,6 +522,7 @@ class JsonBuilderApp:
                     os.makedirs("data/zips", exist_ok=True)
                     shutil.copy(self._manual_zip_path, zip_path)
                     self.zip_manually_selected = False  # Reset flag
+                    self.populate_zip_files()
 
             entry["zip_path"] = zip_path.replace("\\", "/")
 
@@ -534,6 +535,7 @@ class JsonBuilderApp:
                     os.makedirs("data/zips/previews", exist_ok=True)
                     shutil.copy(self._manual_preview_path, preview_path)
                     self.preview_manually_selected = False  # Reset flag
+                    self.populate_preview_images()
 
             entry["zip_path"] = zip_path.replace("\\", "/")
             entry["preview"] = preview_path.replace("\\", "/")
