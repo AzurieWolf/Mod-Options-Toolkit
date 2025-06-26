@@ -617,39 +617,55 @@ class JsonBuilderApp:
         self.save_button.config(state="disabled")
 
     def create_mod_zip(self):
+        # Get mod name and sanitize it
+        raw_mod_name = self.mod_name_var.get().strip() or "UnnamedMod"
+        mod_name = raw_mod_name.replace(" ", "_")
+        zip_filename = f"{mod_name}.zip"
+
         zip_path = filedialog.asksaveasfilename(
             defaultextension=".zip",
             filetypes=[("ZIP files", "*.zip")],
             title="Save Mod ZIP As",
-            initialfile="Mod_Name.zip"
+            initialfile=zip_filename
         )
 
         if not zip_path:
             return  # User cancelled
 
         try:
+            # Folder name inside the zip and temp working folder
+            temp_dir = os.path.join(tempfile.gettempdir(), mod_name)
+
+            # Clean temp dir if it already exists
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+            os.makedirs(temp_dir)
+
+            # Copy the data folder (excluding certain assets)
+            src_data = "data"
+            dst_data = os.path.join(temp_dir, "data")
+            shutil.copytree(
+                src_data, dst_data,
+                ignore=shutil.ignore_patterns("assets/options_builder/*")
+            )
+
+            # Copy the EXE
+            exe_path = "Mod_Option_Selector.exe"
+            if os.path.exists(exe_path):
+                shutil.copy(exe_path, temp_dir)
+            else:
+                messagebox.showwarning("Missing File", f"{exe_path} not found. Only 'data/' will be packaged.")
+
+            # Create the zip
             with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                data_folder = "data"
-                exclude_folder = os.path.normpath(os.path.join(data_folder, "assets", "options_builder"))
-
-                for foldername, subfolders, filenames in os.walk(data_folder):
-                    # Normalize the current folder path for comparison
-                    norm_foldername = os.path.normpath(foldername)
-
-                    # Skip the excluded folder
-                    if norm_foldername.startswith(exclude_folder):
-                        continue
-
+                for foldername, subfolders, filenames in os.walk(temp_dir):
                     for filename in filenames:
                         file_path = os.path.join(foldername, filename)
-                        arcname = os.path.relpath(file_path, start=os.path.dirname(data_folder))
+                        arcname = os.path.join(mod_name, os.path.relpath(file_path, temp_dir))
                         zipf.write(file_path, arcname)
 
-                exe_path = "Mod_Option_Selector.exe"
-                if os.path.exists(exe_path):
-                    zipf.write(exe_path, os.path.basename(exe_path))
-                else:
-                    messagebox.showwarning("Missing File", f"{exe_path} not found. Only 'data/' was zipped.")
+            # Clean up
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
             self.show_zip_success_popup(zip_path)
 
