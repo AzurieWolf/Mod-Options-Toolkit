@@ -75,6 +75,10 @@ class ModOptionSelectorApp:
         self.left_frame = Frame(self.main_frame, bg=self.theme.get("background", "#2e2e2e"))
         self.left_frame.pack(side="left", fill=BOTH, expand=False, padx=5, pady=5)
 
+        # Mod name
+        self.mod_name_label = Label(self.left_frame, textvariable=self.mod_name, font=("Arial", 18, "bold"), bg=self.theme.get("background", "#2e2e2e"), fg=self.theme.get("foreground", "white"))
+        self.mod_name_label.pack(anchor="w")
+
         # Container frame for treeview and its scrollbar
         self.tree_container = Frame(self.left_frame, bg=self.theme.get("background", "#2e2e2e"))
         self.tree_container.pack(fill=BOTH, expand=True)  # Fill vertically and horizontally as needed
@@ -133,9 +137,6 @@ class ModOptionSelectorApp:
         # Frame below the preview canvas to hold the mod details
         self.details_frame = Frame(self.right_frame, bg=self.theme.get("background", "#2e2e2e"))
         self.details_frame.pack(fill="x", padx=10, pady=(0, 10))  # Padding bottom only
-
-        self.mod_name_label = Label(self.details_frame, textvariable=self.mod_name, font=("Arial", 18, "bold"), bg=self.theme.get("background", "#2e2e2e"), fg=self.theme.get("foreground", "white"))
-        self.mod_name_label.pack(anchor="w")
 
         # Label or text variable to hold the detail info
         self.details_text = StringVar()
@@ -461,15 +462,19 @@ class ModOptionSelectorApp:
             self.current_preview_image = None
 
         # Populate the details box
+        # Populate the details box, including the mod name
+        mod_title = self.zip_data[index].get("title", "Unknown Title")
         chunk_id = self.zip_data[index].get("chunk_id", "N/A")
         replaces = self.zip_data[index].get("replaces", "N/A")
         description = self.zip_data[index].get("description", "No description provided.")
 
         details_string = (
+            f"Mod: {mod_title}\n"
             f"Chunk ID: {chunk_id}\n"
             f"Replaces: {replaces}\n"
             f"Description: {description}"
         )
+
         self.details_text.set(details_string)
 
         # Update install/uninstall button text based on current selection
