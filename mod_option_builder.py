@@ -39,7 +39,7 @@ class JsonBuilderApp:
 
         # App display name and version
         self.app_name = "Mod Option Builder"
-        self.app_version = "0.8.0"
+        self.app_version = "1.0.0"
         self.app_author = "AzurieWolf"
 
         # Set window title with app name and version
