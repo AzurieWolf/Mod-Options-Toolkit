@@ -855,6 +855,7 @@ class ModOptionSelectorApp:
         about_win.title("About")
         about_win.configure(bg=self.theme.get("background", "#2e2e2e"))
         about_win.resizable(False, False)
+        about_win.geometry("380x200") # Set fixed window size (width x height)
 
         fg = self.theme.get("foreground", "white")
         bg = self.theme.get("background", "#2e2e2e")
@@ -995,6 +996,20 @@ if __name__ == "__main__":
 
     # Create and run the app instance
     app = ModOptionSelectorApp(root)
+    
+    # Center the window on screen
+    def center_window():
+        root.update_idletasks()
+        width = root.winfo_width()
+        height = root.winfo_height()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+        root.geometry(f"{width}x{height}+{x}+{y}")
+
+    root.after(0, center_window)  # Schedule after first draw
+
     root.mainloop()
 
 # After app exits, unlock and remove the lock file to allow future runs

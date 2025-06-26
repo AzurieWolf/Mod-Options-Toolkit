@@ -489,6 +489,20 @@ class JsonBuilderApp:
         Button(top, text="OK", command=on_ok).pack(pady=5)
         top.transient(self.master)
         top.grab_set()
+        
+        # Center the window on screen
+        def center_window():
+            top.update_idletasks()
+            width = top.winfo_width()
+            height = top.winfo_height()
+            screen_width = top.winfo_screenwidth()
+            screen_height = top.winfo_screenheight()
+            x = (screen_width // 2) - (width // 2)
+            y = (screen_height // 2) - (height // 2)
+            top.geometry(f"{width}x{height}+{x}+{y}")
+
+        top.after(0, center_window)  # Schedule after first draw
+
         self.master.wait_window(top)
 
     # Define the handler
@@ -729,6 +743,20 @@ if __name__ == "__main__":
     root.geometry("900x400")
     root.minsize(1050, 600)  # Set minimum window size
     app = JsonBuilderApp(root)
+
+    # Center the window on screen
+    def center_window():
+        root.update_idletasks()
+        width = root.winfo_width()
+        height = root.winfo_height()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2)
+        root.geometry(f"{width}x{height}+{x}+{y}")
+
+    root.after(0, center_window)  # Schedule after first draw
+
     root.mainloop()
 
 # After app exits, unlock and remove the lock file to allow future runs
