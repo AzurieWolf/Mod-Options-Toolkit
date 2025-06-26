@@ -871,17 +871,21 @@ class ModOptionSelectorApp:
         ttk.Label(about_win, text=f"Version: {version}", background=bg, foreground=fg).pack(pady=2)
         ttk.Label(about_win, text=f"Author: {author}", background=bg, foreground=fg).pack(pady=2)
 
-        def open_link(event):
+        def open_link1(event):
             import webbrowser
             webbrowser.open_new_tab(author_link)
 
+        def open_link2(event):
+            import webbrowser
+            webbrowser.open_new_tab(github_link)
+
         link_label = ttk.Label(about_win, text=author_link, foreground="skyblue", cursor="hand2", background=bg)
         link_label.pack(pady=5)
-        link_label.bind("<Button-1>", open_link)
+        link_label.bind("<Button-1>", open_link1)
 
         link_label2 = ttk.Label(about_win, text=github_link, foreground="skyblue", cursor="hand2", background=bg)
         link_label2.pack(pady=5)
-        link_label2.bind("<Button-1>", open_link)
+        link_label2.bind("<Button-1>", open_link2)
 
         ttk.Button(about_win, text="OK", command=about_win.destroy).pack(pady=(10, 15))
 
