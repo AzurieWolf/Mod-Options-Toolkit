@@ -75,6 +75,12 @@ class JsonBuilderApp:
         self.pack_button.pack(side="left", padx=2)
         ToolTip(self.pack_button, "Create a zip file containing the mod files and mod option selector.")
 
+        Label(left_frame, text="Mod Name:").pack(anchor="w", padx=2)
+        self.mod_name_var = StringVar()
+        self.mod_name_entry = Entry(left_frame, textvariable=self.mod_name_var)
+        self.mod_name_entry.pack(fill="x", padx=2, pady=(0, 5))
+        self.mod_name_var.trace_add("write", lambda *args: self.mark_dirty())
+
         Label(left_frame, text="Entries").pack()
 
         # Frame to hold listbox and scrollbar
@@ -551,9 +557,16 @@ class JsonBuilderApp:
         # Always write current data to JSON
         try:
             os.makedirs(os.path.dirname(JSON_FILE), exist_ok=True)
+            mod_name = self.mod_name_var.get().strip() or "UnnamedMod"
+            mod_structure = {
+                "mod_name": mod_name,
+                "entries": self.data
+            }
+
             with open(JSON_FILE, "w") as f:
-                json.dump(self.data, f, indent=2)
-            # messagebox.showinfo("Saved", "Data saved to data/mod_options.json")
+                json.dump(mod_structure, f, indent=2)
+
+            # messagebox.showinfo("Saved", "Data saved to mod_options.json")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save JSON:\n{e}")
 
@@ -561,19 +574,30 @@ class JsonBuilderApp:
     def load_json(self):
         if not os.path.exists(JSON_FILE):
             self.data = []
+            self.mod_name_var.set("UnnamedMod")
             return
+
         try:
             with open(JSON_FILE, "r") as f:
-                self.data = json.load(f)
+                json_data = json.load(f)
+
+            if isinstance(json_data, dict) and "mod_name" in json_data and "entries" in json_data:
+                self.mod_name_var.set(json_data["mod_name"])
+                self.data = json_data["entries"]
+            else:
+                self.mod_name_var.set("UnnamedMod")
+                self.data = []
+
             self.entry_listbox.delete(0, END)
             for entry in self.data:
                 self.entry_listbox.insert(END, entry.get("title", "Untitled"))
             if self.data:
                 self.entry_listbox.selection_set(0)
                 self.on_entry_select(None)
+
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load mod_options.json:\n{e}")
-        
+
         self.is_dirty = False
         self.save_button.config(text="Saved")
         self.save_button.config(state="disabled")

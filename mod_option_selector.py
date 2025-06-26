@@ -8,7 +8,7 @@ import msvcrt          # For Windows file locking (prevent multiple instances)
 import webbrowser
 from tkinter import (
     Tk, Canvas, filedialog, Scrollbar, Frame, RIGHT, BOTH, Y,
-    messagebox, Toplevel, StringVar, BooleanVar, ttk, font
+    messagebox, Toplevel, StringVar, BooleanVar, ttk, font, Label, StringVar
 )
 # GUI toolkit (Tkinter) and submodules for widgets, dialogs, and styling
 from PIL import Image, ImageTk  # For image handling and displaying in Tkinter
@@ -30,7 +30,7 @@ SETTINGS_FILE = 'data/settings.json'
 OPTIONS_FILE = 'data/mod_options.json'
 THEME_FILE = 'data/theme.json'
 
-class ZipInstallerApp:
+class ModOptionSelectorApp:
     def __init__(self, master):
         self.master = master
         
@@ -133,6 +133,9 @@ class ZipInstallerApp:
         # Frame below the preview canvas to hold the mod details
         self.details_frame = Frame(self.right_frame, bg=self.theme.get("background", "#2e2e2e"))
         self.details_frame.pack(fill="x", padx=10, pady=(0, 10))  # Padding bottom only
+
+        self.mod_name_label = Label(self.details_frame, textvariable=self.mod_name, font=("Arial", 18, "bold"), bg=self.theme.get("background", "#2e2e2e"), fg=self.theme.get("foreground", "white"))
+        self.mod_name_label.pack(anchor="w")
 
         # Label or text variable to hold the detail info
         self.details_text = StringVar()
@@ -428,7 +431,12 @@ class ZipInstallerApp:
         Load zip package metadata from JSON file.
         """
         with open(OPTIONS_FILE, 'r') as f:
-            self.zip_data = json.load(f)
+            data = json.load(f)
+
+        self.mod_name = StringVar()
+        self.mod_name.set(data.get("mod_name", "Unknown Mod"))
+
+        self.zip_data = data.get("entries", [])
 
     def show_preview(self, event):
         """
@@ -977,7 +985,7 @@ if __name__ == "__main__":
     root.minsize(950, 600)  # Set minimum window size
 
     # Create and run the app instance
-    app = ZipInstallerApp(root)
+    app = ModOptionSelectorApp(root)
     root.mainloop()
 
 # After app exits, unlock and remove the lock file to allow future runs
