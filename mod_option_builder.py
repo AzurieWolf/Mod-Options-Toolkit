@@ -425,12 +425,17 @@ class JsonBuilderApp:
         self.entry_listbox.delete(idx)
         self.entry_listbox.insert(idx - 1, title)
 
-        # Reselect moved item
+        # Update selection
+        new_idx = idx - 1
         self.entry_listbox.selection_clear(0, END)
-        self.entry_listbox.selection_set(idx - 1)
-        self.entry_listbox.activate(idx - 1)
-        self.on_entry_select(None)
+        self.entry_listbox.selection_set(new_idx)
+        self.entry_listbox.activate(new_idx)
 
+        # Load entry without triggering loading_entry lock
+        self.loading_entry = False
+        self.display_entry_details(new_idx)
+
+        # Mark dirty and refresh move buttons
         self.mark_dirty()
         self.update_move_buttons()
 
@@ -447,12 +452,17 @@ class JsonBuilderApp:
         self.entry_listbox.delete(idx)
         self.entry_listbox.insert(idx + 1, title)
 
-        # Reselect moved item
+        # Update selection
+        new_idx = idx + 1
         self.entry_listbox.selection_clear(0, END)
-        self.entry_listbox.selection_set(idx + 1)
-        self.entry_listbox.activate(idx + 1)
-        self.on_entry_select(None)
+        self.entry_listbox.selection_set(new_idx)
+        self.entry_listbox.activate(new_idx)
 
+        # Load entry without triggering loading_entry lock
+        self.loading_entry = False
+        self.display_entry_details(new_idx)
+
+        # Mark dirty and refresh move buttons
         self.mark_dirty()
         self.update_move_buttons()
 
@@ -465,6 +475,50 @@ class JsonBuilderApp:
         else:
             self.move_up_button.config(state="normal" if idx > 0 else "disabled")
             self.move_down_button.config(state="normal" if idx < total - 1 else "disabled")
+
+    def display_entry_details(self, idx):
+        """
+        Helper to display entry details without setting loading_entry flag.
+        Used internally after reorder.
+        """
+        if idx is None or idx >= len(self.data):
+            return
+
+        entry = self.data[idx]
+        self.current_index = idx
+
+        self.title_var.set(entry.get("title", ""))
+        self.chunk_id_var.set(entry.get("chunk_id", ""))
+        self.replaces_var.set(entry.get("replaces", ""))
+        self.description_entry.delete("1.0", END)
+        self.description_entry.insert("1.0", entry.get("description", ""))
+
+        zip_path = entry.get("zip_path", "")
+        preview = entry.get("preview", "")
+
+        if zip_path.startswith("data/zips/"):
+            filename = os.path.basename(zip_path)
+            self.zip_combo.set(filename)
+            self.zip_selected(None)
+        else:
+            self.zip_combo.set("")
+            self._manual_zip_path = zip_path
+
+        if preview.startswith("data/zips/previews/"):
+            filename = os.path.basename(preview)
+            self.preview_combo.set(filename)
+            self.display_image(os.path.join("data/zips/previews", filename))
+        elif not preview or preview == "None":
+            self.preview_combo.set("None")
+            self.display_image(DEFAULT_IMAGE)
+        else:
+            self.preview_combo.set("None")
+            self.display_image(preview)
+
+        self.files_listbox.delete(0, END)
+        for f in entry.get("files", []):
+            self.files_listbox.insert(END, f)
+
 
     # Handle listbox selection change
     def on_entry_select(self, event):
@@ -524,7 +578,6 @@ class JsonBuilderApp:
                 else:
                     self.move_up_button.config(state="normal" if idx > 0 else "disabled")
                     self.move_down_button.config(state="normal" if idx < total - 1 else "disabled")
-
 
     # Get selected entry index
     def get_selected_index(self):
