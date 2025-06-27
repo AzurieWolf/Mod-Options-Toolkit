@@ -39,7 +39,7 @@ class JsonBuilderApp:
 
         # App display name and version
         self.app_name = "Mod Option Builder"
-        self.app_version = "1.0.1"
+        self.app_version = "1.0.2"
         self.app_author = "AzurieWolf"
 
         # Set window title with app name and version
@@ -528,19 +528,19 @@ class JsonBuilderApp:
             if idx is None:
                 self.clear_details()
                 return
-
             self.current_index = idx
             entry = self.data[idx]
 
             self.title_var.set(entry.get("title", ""))
-            zip_path = entry.get("zip_path", "")
-            preview = entry.get("preview", "")
-            self._manual_zip_path = None
-            self._manual_preview_path = None
             self.chunk_id_var.set(entry.get("chunk_id", ""))
             self.replaces_var.set(entry.get("replaces", ""))
             self.description_entry.delete("1.0", END)
             self.description_entry.insert("1.0", entry.get("description", ""))
+
+            zip_path = entry.get("zip_path", "")
+            preview = entry.get("preview", "")
+            self._manual_zip_path = None
+            self._manual_preview_path = None
 
             if zip_path.startswith("data/zips/"):
                 filename = os.path.basename(zip_path)
@@ -569,15 +569,8 @@ class JsonBuilderApp:
                 self.save_button.config(text="Saved")
                 self.save_button.config(state="disabled")
         finally:
-            # Enable or disable move buttons based on position
-            if self.move_up_button and self.move_down_button:
-                total = len(self.data)
-                if total == 0 or idx is None:
-                    self.move_up_button.config(state="disabled")
-                    self.move_down_button.config(state="disabled")
-                else:
-                    self.move_up_button.config(state="normal" if idx > 0 else "disabled")
-                    self.move_down_button.config(state="normal" if idx < total - 1 else "disabled")
+            self.loading_entry = False  # ✅ Ensure this is always reset
+            self.update_move_buttons()
 
     # Get selected entry index
     def get_selected_index(self):
