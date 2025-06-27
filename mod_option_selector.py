@@ -434,8 +434,12 @@ class ModOptionSelectorApp:
         with open(OPTIONS_FILE, 'r') as f:
             data = json.load(f)
 
-        self.mod_name = StringVar()
-        self.mod_name.set(data.get("mod_name", "Unknown Mod"))
+        # Only create mod_name StringVar once
+        if hasattr(self, "mod_name"):
+            self.mod_name.set(data.get("mod_name", "Unknown Mod"))
+        else:
+            self.mod_name = StringVar()
+            self.mod_name.set(data.get("mod_name", "Unknown Mod"))
 
         self.zip_data = data.get("entries", [])
 
