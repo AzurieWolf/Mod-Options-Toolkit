@@ -990,7 +990,7 @@ class TreeviewToolTip:
 if __name__ == "__main__":
     # Initialize Tkinter root window
     root = Tk()
-    root.iconbitmap("data/assets/icon.ico")  # Set main app window icon
+    root.iconbitmap("data/assets/mod_option_selector_icon.ico")  # Set main app window icon
 
     root.minsize(950, 600)  # Set minimum window size
 

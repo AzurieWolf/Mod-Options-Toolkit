@@ -756,6 +756,7 @@ class ToolTip:
 # Launch the app if run directly
 if __name__ == "__main__":
     root = Tk()
+    root.iconbitmap("data/assets/mod_option_builder_icon.ico")  # Set main app window icon
     root.geometry("900x400")
     root.minsize(1050, 600)  # Set minimum window size
     app = JsonBuilderApp(root)
