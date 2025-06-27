@@ -36,7 +36,7 @@ class ModOptionSelectorApp:
         
         # App display name and version
         self.app_name = "Mod Option Selector"
-        self.app_version = "1.0.0"
+        self.app_version = "1.0.1"
         self.app_author = "AzurieWolf"
         self.app_author_weblink = "https://linktr.ee/azuriewolf"
         self.app_github_weblink = "https://github.com/AzurieWolf/Mod-Options-Toolkit"
