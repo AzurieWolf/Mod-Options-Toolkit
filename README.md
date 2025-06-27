@@ -42,9 +42,9 @@ data/
   ├── mod_options.json        # Mod entries created by the builder
   ├── settings.json           # Selector settings
   ├── theme.json              # Theme configuration
+  ├── previews/               # Mod preview images
   └── zips/
-      ├── *.zip               # Mod ZIP files
-      └── previews/           # Mod preview images
+      └── *.zip               # Mod ZIP files
 
 Mod_Option_Builder.exe        # Builder executable
 Mod_Option_Selector.exe       # Selector executable
