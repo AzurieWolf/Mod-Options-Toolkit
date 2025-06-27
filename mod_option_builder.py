@@ -39,7 +39,7 @@ class JsonBuilderApp:
 
         # App display name and version
         self.app_name = "Mod Option Builder"
-        self.app_version = "1.0.0"
+        self.app_version = "1.0.1"
         self.app_author = "AzurieWolf"
 
         # Set window title with app name and version
@@ -61,10 +61,6 @@ class JsonBuilderApp:
         btn_frame = Frame(left_frame)
         btn_frame.pack(fill="x", pady=2)
 
-        # Buttons to add/delete entries
-        Button(btn_frame, text="Add Entry", command=self.add_entry).pack(side="left", padx=0)
-        Button(btn_frame, text="Delete Entry", command=self.delete_entry).pack(side="left", padx=2)
-
         # Save button
         self.save_button = Button(btn_frame, text="Save", command=self.save_all)
         self.save_button.pack(side="left", padx=2)
@@ -80,6 +76,19 @@ class JsonBuilderApp:
         self.mod_name_entry = Entry(left_frame, textvariable=self.mod_name_var)
         self.mod_name_entry.pack(fill="x", padx=2, pady=(0, 5))
         self.mod_name_var.trace_add("write", lambda *args: self.mark_dirty())
+
+        # Buttons to add/delete and move up and move down entries
+        Button(btn_frame, text="Add Entry", command=self.add_entry).pack(side="left", padx=0)
+        Button(btn_frame, text="Delete Entry", command=self.delete_entry).pack(side="left", padx=2)
+        # Move up button
+        self.move_up_button = Button(btn_frame, text="↑", command=self.move_entry_up)
+        self.move_up_button.pack(side="left", padx=2)
+        ToolTip(self.move_up_button, "Move selected entry up")
+
+        # Move down button
+        self.move_down_button = Button(btn_frame, text="↓", command=self.move_entry_down)
+        self.move_down_button.pack(side="left", padx=2)
+        ToolTip(self.move_down_button, "Move selected entry down")
 
         Label(left_frame, text="Entries").pack()
 
@@ -403,6 +412,60 @@ class JsonBuilderApp:
                 self.populate_preview_images()
                 self.populate_zip_files()
 
+    def move_entry_up(self):
+        idx = self.get_selected_index()
+        if idx is None or idx == 0:
+            return  # Can't move up the first item
+
+        # Swap data
+        self.data[idx - 1], self.data[idx] = self.data[idx], self.data[idx - 1]
+
+        # Update listbox
+        title = self.entry_listbox.get(idx)
+        self.entry_listbox.delete(idx)
+        self.entry_listbox.insert(idx - 1, title)
+
+        # Reselect moved item
+        self.entry_listbox.selection_clear(0, END)
+        self.entry_listbox.selection_set(idx - 1)
+        self.entry_listbox.activate(idx - 1)
+        self.on_entry_select(None)
+
+        self.mark_dirty()
+        self.update_move_buttons()
+
+    def move_entry_down(self):
+        idx = self.get_selected_index()
+        if idx is None or idx >= len(self.data) - 1:
+            return  # Can't move down the last item
+
+        # Swap data
+        self.data[idx + 1], self.data[idx] = self.data[idx], self.data[idx + 1]
+
+        # Update listbox
+        title = self.entry_listbox.get(idx)
+        self.entry_listbox.delete(idx)
+        self.entry_listbox.insert(idx + 1, title)
+
+        # Reselect moved item
+        self.entry_listbox.selection_clear(0, END)
+        self.entry_listbox.selection_set(idx + 1)
+        self.entry_listbox.activate(idx + 1)
+        self.on_entry_select(None)
+
+        self.mark_dirty()
+        self.update_move_buttons()
+
+    def update_move_buttons(self):
+        idx = self.get_selected_index()
+        total = len(self.data)
+        if total == 0 or idx is None:
+            self.move_up_button.config(state="disabled")
+            self.move_down_button.config(state="disabled")
+        else:
+            self.move_up_button.config(state="normal" if idx > 0 else "disabled")
+            self.move_down_button.config(state="normal" if idx < total - 1 else "disabled")
+
     # Handle listbox selection change
     def on_entry_select(self, event):
         self.loading_entry = True
@@ -452,7 +515,16 @@ class JsonBuilderApp:
                 self.save_button.config(text="Saved")
                 self.save_button.config(state="disabled")
         finally:
-            self.loading_entry = False
+            # Enable or disable move buttons based on position
+            if self.move_up_button and self.move_down_button:
+                total = len(self.data)
+                if total == 0 or idx is None:
+                    self.move_up_button.config(state="disabled")
+                    self.move_down_button.config(state="disabled")
+                else:
+                    self.move_up_button.config(state="normal" if idx > 0 else "disabled")
+                    self.move_down_button.config(state="normal" if idx < total - 1 else "disabled")
+
 
     # Get selected entry index
     def get_selected_index(self):
