@@ -39,7 +39,7 @@ class JsonBuilderApp:
 
         # App display name and version
         self.app_name = "Mod Option Builder"
-        self.app_version = "1.0.2"
+        self.app_version = "1.0.3"
         self.app_author = "AzurieWolf"
 
         # Set window title with app name and version
@@ -234,7 +234,7 @@ class JsonBuilderApp:
 
     # Populate the preview image dropdown
     def populate_preview_images(self):
-        folder = "data/zips/previews"
+        folder = "data/previews"
         os.makedirs(folder, exist_ok=True)
         previews = ["None"] + [f for f in os.listdir(folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
         self.preview_combo['values'] = previews
@@ -256,7 +256,7 @@ class JsonBuilderApp:
     def preview_selected(self, event=None):
         filename = self.preview_combo.get()
         if filename and filename != "None":
-            path = os.path.join("data/zips/previews", filename)
+            path = os.path.join("data/previews", filename)
         else:
             path = DEFAULT_IMAGE
         self.display_image(path)
@@ -504,10 +504,10 @@ class JsonBuilderApp:
             self.zip_combo.set("")
             self._manual_zip_path = zip_path
 
-        if preview.startswith("data/zips/previews/"):
+        if preview.startswith("data/previews/"):
             filename = os.path.basename(preview)
             self.preview_combo.set(filename)
-            self.display_image(os.path.join("data/zips/previews", filename))
+            self.display_image(os.path.join("data/previews", filename))
         elif not preview or preview == "None":
             self.preview_combo.set("None")
             self.display_image(DEFAULT_IMAGE)
@@ -550,10 +550,10 @@ class JsonBuilderApp:
                 self.zip_combo.set("")
                 self._manual_zip_path = zip_path
 
-            if preview.startswith("data/zips/previews/"):
+            if preview.startswith("data/previews/"):
                 filename = os.path.basename(preview)
                 self.preview_combo.set(filename)
-                self.display_image(os.path.join("data/zips/previews", filename))
+                self.display_image(os.path.join("data/previews", filename))
             elif not preview or preview == "None":
                 self.preview_combo.set("None")
                 self.display_image(DEFAULT_IMAGE)
@@ -666,10 +666,10 @@ class JsonBuilderApp:
             # Determine preview path
             preview_path = ""
             if self.preview_combo.get() and self.preview_combo.get() != "None":
-                preview_path = os.path.join("data/zips/previews", self.preview_combo.get())
+                preview_path = os.path.join("data/previews", self.preview_combo.get())
 
                 if self.preview_manually_selected and hasattr(self, "_manual_preview_path"):
-                    os.makedirs("data/zips/previews", exist_ok=True)
+                    os.makedirs("data/previews", exist_ok=True)
                     shutil.copy(self._manual_preview_path, preview_path)
                     self.preview_manually_selected = False  # Reset flag
                     self.populate_preview_images()
