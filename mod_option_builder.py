@@ -644,10 +644,12 @@ class JsonBuilderApp:
             # Copy the data folder (excluding certain assets)
             src_data = "data"
             dst_data = os.path.join(temp_dir, "data")
-            shutil.copytree(
-                src_data, dst_data,
-                ignore=shutil.ignore_patterns("assets/options_builder/*")
-            )
+            def ignore_builder_folder(dir, files):
+                if os.path.normpath(dir).endswith(os.path.normpath("data/assets")):
+                    return ["options_builder"]
+                return []
+
+            shutil.copytree(src_data, dst_data, ignore=ignore_builder_folder)
 
             # Copy the EXE
             exe_path = "Mod_Option_Selector.exe"
