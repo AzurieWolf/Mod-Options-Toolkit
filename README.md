@@ -39,12 +39,13 @@ A two-part mod management toolkit: Mod Option Builder lets you create and organi
 
 ```
 data/
-  ├── mod_options.json        # Mod entries created by the builder
-  ├── settings.json           # Selector settings
-  ├── theme.json              # Theme configuration
+  ├── assets/                 # Program icons
   ├── previews/               # Mod preview images
   └── zips/
       └── *.zip               # Mod ZIP files
+  ├── mod_options.json        # Mod entries created by the builder
+  ├── settings.json           # Selector settings
+  └── theme.json              # Theme configuration
 
 Mod_Option_Builder.exe        # Builder executable
 Mod_Option_Selector.exe       # Selector executable
