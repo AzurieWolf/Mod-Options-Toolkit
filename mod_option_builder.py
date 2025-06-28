@@ -39,7 +39,7 @@ class JsonBuilderApp:
 
         # App display name and version
         self.app_name = "Mod Option Builder"
-        self.app_version = "1.0.4"
+        self.app_version = "1.0.5"
         self.app_author = "AzurieWolf"
 
         # Set window title with app name and version
@@ -136,6 +136,19 @@ class JsonBuilderApp:
         self.canvas = Canvas(right_frame, width=200, height=200, bg="white", bd=1, relief="solid")
         self.canvas.grid(row=0, column=3, rowspan=4, padx=5, pady=5)
 
+        # Frame for Prev/Next buttons under preview
+        preview_nav_frame = Frame(right_frame)
+        preview_nav_frame.grid(row=4, column=3, pady=(0, 5))
+
+        self.prev_button = Button(preview_nav_frame, text="◀ Prev", command=self.prev_preview_image)
+        self.prev_button.pack(side="left", padx=(0, 5))
+
+        self.next_button = Button(preview_nav_frame, text="Next ▶", command=self.next_preview_image)
+        self.next_button.pack(side="left", padx=(5, 0))
+
+        self.delete_preview_button = Button(preview_nav_frame, text="🗑 Delete", command=self.delete_current_preview)
+        self.delete_preview_button.pack(side="left", padx=(10, 0))
+
         self.zip_manually_selected = False
         self.preview_manually_selected = False
 
@@ -205,6 +218,8 @@ class JsonBuilderApp:
         # Populate dropdowns and load data
         self.populate_zip_files()
         self.populate_preview_images()
+        self.preview_images = [f for f in self.preview_combo['values'] if f != "None"]
+        self.update_preview_nav_buttons()
         self.load_json()
 
     def mark_dirty(self, event=None):
@@ -248,6 +263,89 @@ class JsonBuilderApp:
         os.makedirs(folder, exist_ok=True)
         previews = ["None"] + [f for f in os.listdir(folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
         self.preview_combo['values'] = previews
+        self.preview_images = [f for f in previews if f != "None"]
+        self.update_preview_nav_buttons()  # ← Add this line
+
+    def next_preview_image(self):
+        current = self.preview_combo.get()
+        previews = self.preview_images
+        if not previews:
+            return
+        if current not in previews:
+            next_index = 0
+        else:
+            next_index = (previews.index(current) + 1) % len(previews)
+        self.preview_combo.set(previews[next_index])
+        self.preview_selected(None)
+        self.mark_dirty()
+
+    def prev_preview_image(self):
+        current = self.preview_combo.get()
+        previews = self.preview_images
+        if not previews:
+            return
+        if current not in previews:
+            prev_index = len(previews) - 1
+        else:
+            prev_index = (previews.index(current) - 1) % len(previews)
+        self.preview_combo.set(previews[prev_index])
+        self.preview_selected(None)
+        self.mark_dirty()
+
+    def update_preview_nav_buttons(self):
+        if hasattr(self, "prev_button") and hasattr(self, "next_button") and hasattr(self, "delete_preview_button"):
+            if len(self.preview_images) > 1:
+                self.prev_button.config(state="normal")
+                self.next_button.config(state="normal")
+            else:
+                self.prev_button.config(state="disabled")
+                self.next_button.config(state="disabled")
+
+            if self.preview_images:
+                self.delete_preview_button.config(state="normal")
+            else:
+                self.delete_preview_button.config(state="disabled")
+
+    def delete_current_preview(self):
+        current = self.preview_combo.get()
+        if not current or current == "None":
+            messagebox.showinfo("No Image Selected", "No image to delete.")
+            return
+
+        img_path = os.path.join("data/previews", current)
+        if not os.path.exists(img_path):
+            messagebox.showerror("File Not Found", f"Image not found:\n{img_path}")
+            return
+
+        if not messagebox.askyesno("Confirm Delete", f"Delete preview image:\n{current}?"):
+            return
+
+        try:
+            os.remove(img_path)
+        except Exception as e:
+            messagebox.showerror("Delete Failed", f"Could not delete image:\n{e}")
+            return
+
+        # Get index before refresh
+        old_index = self.preview_images.index(current) if current in self.preview_images else -1
+
+        # Refresh previews
+        self.populate_preview_images()
+
+        # Select next or previous image, or fallback to default
+        if self.preview_images:
+            if old_index >= len(self.preview_images):  # Was last item
+                new_index = len(self.preview_images) - 1
+            else:
+                new_index = old_index
+            new_preview = self.preview_images[new_index]
+            self.preview_combo.set(new_preview)
+            self.display_image(os.path.join("data/previews", new_preview))
+        else:
+            self.preview_combo.set("None")
+            self.display_image(DEFAULT_IMAGE)
+
+        self.mark_dirty()
 
     # When ZIP file selected, extract and display file list
     def zip_selected(self, event):
