@@ -36,7 +36,7 @@ class ModOptionSelectorApp:
         
         # App display name and version
         self.app_name = "Mod Option Selector"
-        self.app_version = "1.0.1"
+        self.app_version = "1.0.2"
         self.app_author = "AzurieWolf"
         self.app_author_weblink = "https://linktr.ee/azuriewolf"
         self.app_github_weblink = "https://github.com/AzurieWolf/Mod-Options-Toolkit"
@@ -75,9 +75,15 @@ class ModOptionSelectorApp:
         self.left_frame = Frame(self.main_frame, bg=self.theme.get("background", "#2e2e2e"))
         self.left_frame.pack(side="left", fill=BOTH, expand=False, padx=5, pady=5)
 
-        # Mod name
-        self.mod_name_label = Label(self.left_frame, textvariable=self.mod_name, font=("Arial", 18, "bold"), bg=self.theme.get("background", "#2e2e2e"), fg=self.theme.get("foreground", "white"))
-        self.mod_name_label.pack(anchor="w")
+        # Mod name and version number
+        name_version_frame = Frame(self.left_frame, bg=self.theme.get("background", "#2e2e2e"))
+        name_version_frame.pack(anchor="w", pady=(0, 0))
+
+        mod_name_label = Label(name_version_frame, textvariable=self.mod_name, font=("Arial", 18, "bold"), bg=self.theme.get("background", "#2e2e2e"), fg=self.theme.get("foreground", "#ffffff"))
+        mod_name_label.pack(side="left", padx=(0, 0))
+
+        mod_version_label = Label(name_version_frame, textvariable=self.mod_version, font=("Arial", 18, "bold"), bg=self.theme.get("background", "#2e2e2e"), fg=self.theme.get("foreground", "#ffffff"))
+        mod_version_label.pack(side="left", padx=(0, 0))
 
         # Container frame for treeview and its scrollbar
         self.tree_container = Frame(self.left_frame, bg=self.theme.get("background", "#2e2e2e"))
@@ -434,12 +440,25 @@ class ModOptionSelectorApp:
         with open(OPTIONS_FILE, 'r') as f:
             data = json.load(f)
 
-        # Only create mod_name StringVar once
+        mod_name = data.get("mod_name", "").strip()
+        mod_version = data.get("mod_version", "").strip()
+
+        if not mod_name:
+            mod_name = "Unknown Mod"
+
+        if not mod_version:
+            version_display = "N/A"
+        else:
+            version_display = "v" + mod_version
+
         if hasattr(self, "mod_name"):
-            self.mod_name.set(data.get("mod_name", "Unknown Mod"))
+            self.mod_name.set(mod_name)
+            self.mod_version.set(version_display)
         else:
             self.mod_name = StringVar()
-            self.mod_name.set(data.get("mod_name", "Unknown Mod"))
+            self.mod_name.set(mod_name)
+            self.mod_version = StringVar()
+            self.mod_version.set(version_display)
 
         self.zip_data = data.get("entries", [])
 

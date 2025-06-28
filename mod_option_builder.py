@@ -39,7 +39,7 @@ class JsonBuilderApp:
 
         # App display name and version
         self.app_name = "Mod Option Builder"
-        self.app_version = "1.0.3"
+        self.app_version = "1.0.4"
         self.app_author = "AzurieWolf"
 
         # Set window title with app name and version
@@ -71,11 +71,21 @@ class JsonBuilderApp:
         self.pack_button.pack(side="left", padx=2)
         ToolTip(self.pack_button, "Create a zip file containing the mod files and mod option selector.")
 
-        Label(left_frame, text="Mod Name:").pack(anchor="w", padx=2)
         self.mod_name_var = StringVar()
+        self.mod_version_var = StringVar()
+        mod_name_version_frame = Frame(left_frame)
+        mod_name_version_frame.pack(fill="x", padx=2, pady=(0, 5))
+
+        Label(left_frame, text="Mod Name:").pack(anchor="w", padx=2)
         self.mod_name_entry = Entry(left_frame, textvariable=self.mod_name_var)
-        self.mod_name_entry.pack(fill="x", padx=2, pady=(0, 5))
+        self.mod_name_entry.pack(fill="x", padx=2)
+
+        Label(left_frame, text="Version:").pack(anchor="w", padx=2, pady=(5, 0))
+        self.mod_version_entry = Entry(left_frame, textvariable=self.mod_version_var)
+        self.mod_version_entry.pack(fill="x", padx=2, pady=(0, 5))
+
         self.mod_name_var.trace_add("write", lambda *args: self.mark_dirty())
+        self.mod_version_var.trace_add("write", lambda *args: self.mark_dirty())
 
         # Buttons to add/delete and move up and move down entries
         Button(btn_frame, text="Add Entry", command=self.add_entry).pack(side="left", padx=0)
@@ -688,10 +698,11 @@ class JsonBuilderApp:
 
         # Always write current data to JSON
         try:
-            os.makedirs(os.path.dirname(JSON_FILE), exist_ok=True)
             mod_name = self.mod_name_var.get().strip() or "UnnamedMod"
+            mod_version = self.mod_version_var.get().strip()
             mod_structure = {
                 "mod_name": mod_name,
+                "mod_version": mod_version,
                 "entries": self.data
             }
 
@@ -715,6 +726,7 @@ class JsonBuilderApp:
 
             if isinstance(json_data, dict) and "mod_name" in json_data and "entries" in json_data:
                 self.mod_name_var.set(json_data["mod_name"])
+                self.mod_version_var.set(json_data.get("mod_version", ""))
                 self.data = json_data["entries"]
             else:
                 self.mod_name_var.set("UnnamedMod")
