@@ -159,12 +159,40 @@ class JsonBuilderApp:
         self.zip_combo.bind("<<ComboboxSelected>>", self.zip_selected)
         Button(right_frame, text="Browse...", command=self.browse_zip).grid(row=1, column=2, sticky="w", padx=5)
 
+        # ZIP file selection
+        Label(right_frame, text="ZIP File:").grid(row=1, column=0, sticky="w", padx=5)
+        self.zip_combo = ttk.Combobox(right_frame, state="readonly")
+        self.zip_combo.grid(row=1, column=1, sticky="ew", pady=2)
+
+        zip_btn_frame = Frame(right_frame)
+        zip_btn_frame.grid(row=1, column=2, sticky="w", padx=5)
+
+        Button(zip_btn_frame, text="Browse...", command=self.browse_zip).pack(side="left")
+
+        zip_open_btn = Button(zip_btn_frame, text="📂", width=2, command=lambda: self.open_folder("data/zips"))
+        zip_open_btn.pack(side="left", padx=(5, 0))
+        ToolTip(zip_open_btn, "Open ZIPs folder")
+
         # Preview image selection
         Label(right_frame, text="Preview Image:").grid(row=2, column=0, sticky="w", padx=5)
         self.preview_combo = ttk.Combobox(right_frame, state="readonly")
         self.preview_combo.grid(row=2, column=1, sticky="ew", pady=2)
         self.preview_combo.bind("<<ComboboxSelected>>", self.preview_selected)
         Button(right_frame, text="Browse...", command=self.browse_preview).grid(row=2, column=2, sticky="w", padx=5)
+
+        # Preview image selection
+        Label(right_frame, text="Preview Image:").grid(row=2, column=0, sticky="w", padx=5)
+        self.preview_combo = ttk.Combobox(right_frame, state="readonly")
+        self.preview_combo.grid(row=2, column=1, sticky="ew", pady=2)
+
+        preview_btn_frame = Frame(right_frame)
+        preview_btn_frame.grid(row=2, column=2, sticky="w", padx=5)
+
+        Button(preview_btn_frame, text="Browse...", command=self.browse_preview).pack(side="left")
+
+        preview_open_btn = Button(preview_btn_frame, text="📂", width=2, command=lambda: self.open_folder("data/previews"))
+        preview_open_btn.pack(side="left", padx=(5, 0))
+        ToolTip(preview_open_btn, "Open Preview Images folder")
 
         # Listbox for files inside ZIP
         Label(right_frame, text="Files:").grid(row=3, column=0, sticky="nw", pady=5, padx=5)
@@ -236,6 +264,17 @@ class JsonBuilderApp:
         if self.loading_entry:
             return
         self.mark_dirty()
+
+    def open_folder(self, path):
+        abs_path = os.path.abspath(path)
+        if not os.path.exists(abs_path):
+            os.makedirs(abs_path)
+        if sys.platform == "win32":
+            subprocess.run(["explorer", abs_path])
+        elif sys.platform == "darwin":
+            subprocess.run(["open", abs_path])
+        else:
+            subprocess.run(["xdg-open", abs_path])
 
     def select_zip_file(self):
         path = filedialog.askopenfilename(filetypes=[("ZIP files", "*.zip")])
@@ -848,7 +887,14 @@ class JsonBuilderApp:
         # Get mod name and sanitize it
         raw_mod_name = self.mod_name_var.get().strip() or "UnnamedMod"
         mod_name = raw_mod_name.replace(" ", "_")
-        zip_filename = f"{mod_name}.zip"
+
+        raw_version = self.mod_version_var.get().strip()
+        version = raw_version.replace(" ", "_")
+
+        if version:
+            zip_filename = f"{mod_name}_v{version}.zip"
+        else:
+            zip_filename = f"{mod_name}.zip"
 
         zip_path = filedialog.asksaveasfilename(
             defaultextension=".zip",
@@ -862,7 +908,8 @@ class JsonBuilderApp:
 
         try:
             # Folder name inside the zip and temp working folder
-            temp_dir = os.path.join(tempfile.gettempdir(), mod_name)
+            folder_name = f"{mod_name}_v{version}" if version else mod_name
+            temp_dir = os.path.join(tempfile.gettempdir(), folder_name)
 
             # Clean temp dir if it already exists
             if os.path.exists(temp_dir):
@@ -891,7 +938,7 @@ class JsonBuilderApp:
                 for foldername, subfolders, filenames in os.walk(temp_dir):
                     for filename in filenames:
                         file_path = os.path.join(foldername, filename)
-                        arcname = os.path.join(mod_name, os.path.relpath(file_path, temp_dir))
+                        arcname = os.path.join(folder_name, os.path.relpath(file_path, temp_dir))
                         zipf.write(file_path, arcname)
 
             # Clean up
